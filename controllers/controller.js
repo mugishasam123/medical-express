@@ -1,50 +1,59 @@
-import { filename } from "../server.js";
-import XLSX from "xlsx";
+import axios from "axios";
 
-export default class medicalApi {
-  static async fetchData(req, res) {
-    const workbook = await XLSX.readFile(filename);
-    const sheet_name_list = workbook.SheetNames;
-   
-    if (req.role == "patient") {
-      console.log("patient", sheet_name_list[0]);
-      const results = {
-        sheetName: sheet_name_list[0],
-        data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]),
-      };
-    }
-    if (req.role == "physician") {
-      console.log("phyiscian", sheet_name_list[1]);
-      const results = {
-        sheetName: sheet_name_list[1],
-        data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[1]]),
-      };
-    }
-    if (req.role == "pharmacist") {
-      console.log("pharmacist", sheet_name_list[2]);
-      const results = {
-        sheetName: sheet_name_list[2],
-        data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[2]]),
-      };
-    }
-    if (req.role == "admin") {
-      console.log("admin");
-      const results = {
-        tables: [
-          {
-            sheetName: sheet_name_list[0],
-            data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]),
-          },
-          {
-            sheetName: sheet_name_list[1],
-            data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[1]]),
-          },
-          {
-            sheetName: sheet_name_list[2],
-            data: XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[2]]),
-          },
-        ],
-      };
+export const fetchData = async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    const response = await axios.get(`${process.env.BASE_URL}/data`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    res.status(200).json(response.data);
+  } catch (err) {
+    if (err.response) {
+      res.status(400).json(err.response.data);
+    } else {
+      res.status(500).json({ message: "Internal server error" });
     }
   }
-}
+};
+
+
+export const createUser = async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${process.env.BASE_URL}/register`,
+      JSON.stringify(req.body)
+    );
+
+    const results = await response.data;
+    res.status(201).json(results);
+  } catch (err) {
+    if (err.response) {
+      res.status(400).json(err.response.data);
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+};
+
+
+export const login = async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${process.env.BASE_URL}/login`,
+      JSON.stringify(req.body)
+    );
+
+    const results = await response.data;
+    res.status(200).json(results);
+  } catch (err) {
+    if (err.response) {
+      res.status(400).json(err.response.data);
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+};
