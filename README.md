@@ -13,7 +13,7 @@ Additional description about the project and its features.
 
 [link to java api repo](https://github.com/mugishasam123/medical-java)
 
-[link to react frontend repoa](https://github.com/mugishasam123/medical-react)
+[link to react frontend repo](https://github.com/mugishasam123/medical-react)
 
 ## Built With
 
